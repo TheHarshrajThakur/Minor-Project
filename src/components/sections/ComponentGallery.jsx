@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom'
 export const COMPONENTS = [
   {
     id: 1, name: 'Forged Crankshaft', type: 'crankshaft', color: '#60a5fa', spec: 'Forged Steel',
-    description: 'Precision-machined forged steel crankshaft designed for high-RPM stability and maximum power transfer.'
+    description: 'The engine shaft that converts pistons’ reciprocating motion into rotary motion. Forged from high-pressure steel billets, it offers superior strength, fatigue resistance, and grain flow alignment compared to cast alternatives.'
   },
   {
     id: 2, name: 'Performance Piston', type: 'piston', color: '#f87171', spec: 'Forged Alloy',

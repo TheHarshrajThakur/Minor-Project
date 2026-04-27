@@ -109,6 +109,44 @@ const ACADEMY_DATA = [
     )
   },
   {
+    id: 'crankshaft-tech',
+    title: 'Crankshaft Tech',
+    icon: Cog,
+    color: '#6366f1',
+    content: (
+      <div className="study-content">
+        <h3>1. Meaning and Principle</h3>
+        <p>A forged crankshaft is the engine shaft that converts the pistons’ back-and-forth motion into rotary motion. It is made by heating a steel billet and shaping it under very high pressure. In a forged crankshaft, the metal’s grain flow is compressed and aligned during forging, which improves strength and resistance to fatigue and cracking.</p>
+        
+        <h3>2. Main Form and Parts</h3>
+        <p>A forged crankshaft usually has these main features:</p>
+        <ul>
+          <li><strong>Main Journals:</strong> The points where the crankshaft is held by the engine block.</li>
+          <li><strong>Crankpins (Rod Journals):</strong> Where the connecting rods are attached.</li>
+          <li><strong>Webs:</strong> Connect the journals together.</li>
+          <li><strong>Counterweights:</strong> Reduce vibration and balance the rotating mass.</li>
+          <li><strong>Fillets:</strong> Small radius curves at the corners to reduce stress concentration.</li>
+        </ul>
+
+        <h3>3. Manufacturing Process</h3>
+        <p>The process starts with selecting a high-quality alloy steel billet, heating it, and pressing it into shape using forging dies. After that, flash is trimmed, the part is machined to final dimensions, and finishing steps such as heat treatment, inspection, balancing, and surface treatment are done.</p>
+
+        <h3>4. Why it is Used</h3>
+        <p>Forged crankshafts are preferred when the engine must handle high stress. Forging makes the part less brittle and more durable. They are common in racing engines, performance cars, and heavy-duty machinery where strength, reliability, and fatigue life matter more than low cost.</p>
+
+        <h3>5. Advantages & Limitations</h3>
+        <p><strong>Advantages:</strong> Higher strength and toughness than cast versions, better resistance to shock loading, suited for high RPM, and longer service life.</p>
+        <p><strong>Limitations:</strong> More expensive to manufacture, requires more precision machining, and can have more rotating inertia unless optimized.</p>
+
+        <h3>6. Working in an Engine</h3>
+        <p>During operation, combustion pressure pushes the pistons down, the connecting rods transfer that force to the crankpins, and the crankshaft converts it into rotation for the flywheel and drivetrain. Oil films in the bearings support the journals and reduce metal-to-metal contact.</p>
+
+        <h3>7. Simple Example</h3>
+        <p>In a racing engine, a forged crankshaft is often chosen because the engine runs at very high speed and experiences large cyclic forces. The forged part survives these repeated loads better than a weaker cast shaft would.</p>
+      </div>
+    )
+  },
+  {
     id: 'materials',
     title: 'Material Science',
     icon: BookOpen,
