@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import { motion, useScroll, useSpring } from 'framer-motion'
 import { Routes, Route, useNavigate } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import { Canvas } from '@react-three/fiber'
 import { Environment } from '@react-three/drei'
 import Lenis from 'lenis'
@@ -11,7 +12,7 @@ import ComponentGallery from './components/sections/ComponentGallery'
 import DetailPanel from './components/sections/DetailPanel'
 import Academy from './components/sections/Academy'
 import { AnimatedLogo } from './components/3d/Models'
-import CustomCursor from './components/layout/CustomCursor'
+
 import BackgroundGlow from './components/layout/BackgroundGlow'
 
 function HomePage() {
@@ -44,12 +45,14 @@ function HomePage() {
             Engineering <span className="text-gradient-blue">Academy</span>
           </motion.h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 360px), 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1.5rem' }}>
             {[
-              { id: 'kinematics', title: 'Kinematics & Dynamics', desc: 'Study motion of mechanical bodies and systems. Learn velocity, acceleration, and force relationships.', tag: '12 Modules' },
-              { id: 'thermodynamics', title: 'Thermodynamics', desc: 'Explore heat transfer, entropy, and energy conversion in mechanical systems including engines.', tag: '8 Modules' },
-              { id: 'fluid-mechanics', title: 'Fluid Mechanics', desc: 'Understand fluid behavior critical for turbine, pump, and hydraulic system design.', tag: '10 Modules' },
-              { id: 'materials', title: 'Materials Science', desc: 'Study mechanical properties of metals, polymers, and composites for optimal material selection.', tag: '6 Modules' },
+              { id: 'thermodynamics', title: 'Thermodynamics', desc: 'Governing principles of energy conversion, thermal efficiency, and the Carnot cycle limit in real-world power plants.', tag: 'Advanced' },
+              { id: 'engine-cycles', title: 'IC Engine Cycles', desc: 'Deep dive into the Otto and Diesel thermodynamic cycles, volumetric efficiency, and combustion phase dynamics.', tag: 'Core Module' },
+              { id: 'engine-anatomy', title: 'Engine Anatomy', desc: 'Precision metallurgy of the rotating assembly, valvetrain dynamics, and mitigation of high-RPM valve float.', tag: '12 Chapters' },
+              { id: 'forced-induction', title: 'Forced Induction', desc: 'Turbocharger thermodynamics, adiabatic efficiency, and charge air cooling strategies for extreme power gains.', tag: 'Specialized' },
+              { id: 'fluid-mechanics', title: 'Fluid Dynamics', desc: 'Hydrodynamic lubrication states, boundary layer behavior in intake runners, and high-G cavitation prevention.', tag: '8 Modules' },
+              { id: 'materials', title: 'Material Science', desc: 'Crystalline grain structures in forged alloys, and the application of exotic superalloys like Inconel and Titanium.', tag: 'Metallurgy' },
             ].map((module, i) => (
               <motion.div
                 key={module.title}
@@ -69,27 +72,35 @@ function HomePage() {
                 className="glass-card card-hover"
                 style={{ 
                   padding: '2.5rem', borderRadius: '1.5rem', cursor: 'pointer', transformStyle: 'preserve-3d',
+                  width: 'min(100%, 360px)', height: '280px',
                   background: 'rgba(20,20,20,0.6)', border: '1px solid rgba(255,255,255,0.08)',
                   boxShadow: '0 15px 35px -5px rgba(0,0,0,0.8), 0 0 15px rgba(59,130,246,0.05)'
                 }}
               >
-                <motion.div 
-                  whileHover={{ scale: 1.1 }}
-                  style={{
-                    display: 'inline-block', padding: '0.4rem 0.8rem', borderRadius: '0.5rem',
-                    background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)',
-                    fontSize: '0.65rem', fontWeight: 800, color: '#3b82f6',
-                    textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '1.5rem'
-                  }}
-                >
-                  {module.tag}
-                </motion.div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
-                  {module.title}
-                </h3>
-                <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
-                  {module.desc}
-                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <motion.div 
+                    whileHover={{ scale: 1.05 }}
+                    style={{
+                      display: 'inline-block', padding: '0.4rem 0.8rem', borderRadius: '0.5rem',
+                      background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)',
+                      fontSize: '0.65rem', fontWeight: 800, color: '#3b82f6',
+                      textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '1.5rem',
+                      alignSelf: 'flex-start'
+                    }}
+                  >
+                    {module.tag}
+                  </motion.div>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '0.75rem', letterSpacing: '-0.02em' }}>
+                    {module.title}
+                  </h3>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', lineHeight: 1.6, flexGrow: 1 }}>
+                    {module.desc}
+                  </p>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#3b82f6', fontSize: '0.85rem', fontWeight: 700, marginTop: '1.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    EXPLORE MODULE <ArrowRight size={16} />
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -149,10 +160,8 @@ export default function App() {
   }, [])
 
   return (
-    <div style={{ background: '#050505', color: '#fff', minHeight: '100vh', cursor: 'none', position: 'relative' }}>
-      <BackgroundGlow />
-      <CustomCursor />
-      
+    <div style={{ background: '#050505', color: '#fff', minHeight: '100vh', position: 'relative' }}>
+      <BackgroundGlow />      
       {/* Progress Bar */}
       <motion.div
         style={{
@@ -182,10 +191,14 @@ export default function App() {
             {/* Branding Column */}
             <div style={{ gridColumn: 'span 2' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.5rem' }}>
-                <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid rgba(59,130,246,0.3)' }}>
-                  <Canvas camera={{ position: [0, 0, 3] }}>
-                    <ambientLight intensity={1.5} />
-                    <AnimatedLogo size={1.2} />
+                <div style={{ width: '2.75rem', height: '2.75rem', borderRadius: '0.625rem', overflow: 'hidden', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(59,130,246,0.3)' }}>
+                  <Canvas camera={{ position: [0, 0, 3], fov: 45 }} dpr={[1, 2]}>
+                    <ambientLight intensity={1} />
+                    <directionalLight position={[10, 10, 10]} intensity={2} />
+                    <Suspense fallback={null}>
+                      <AnimatedLogo />
+                      <Environment preset="city" />
+                    </Suspense>
                   </Canvas>
                 </div>
                 <div style={{ textAlign: 'left' }}>

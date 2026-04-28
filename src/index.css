@@ -14,11 +14,18 @@ html {
 
 body {
   background: #000;
-  color: #fff;
-  font-family: 'Inter', system-ui, sans-serif;
+  color: #f8fafc;
+  font-family: 'Outfit', system-ui, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  font-weight: 700;
 }
 
 /* ============================================
@@ -172,9 +179,25 @@ body {
 .section-label::before {
   content: '';
   display: block;
-  width: 2rem;
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+  transform: rotate(45deg);
+  animation: pulse-diamond 2s ease-in-out infinite alternate;
+}
+
+.section-label::after {
+  content: '';
+  display: block;
+  width: 4rem;
   height: 1px;
-  background: rgba(59, 130, 246, 0.5);
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.5), transparent);
+}
+
+@keyframes pulse-diamond {
+  0% { transform: rotate(45deg) scale(0.8); box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
+  100% { transform: rotate(45deg) scale(1.2); box-shadow: 0 0 16px rgba(59, 130, 246, 0.9); }
 }
 
 .section-label span {

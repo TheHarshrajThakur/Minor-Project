@@ -2,19 +2,54 @@ import { useState, useEffect, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Canvas } from '@react-three/fiber'
 import { Environment } from '@react-three/drei'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { AnimatedLogo } from '../3d/Models'
+import { Home } from 'lucide-react'
 
-const links = ['Showcase', 'Inventory', 'Academy', 'About']
+const links = ['Home', 'Showcase', 'Inventory', 'Academy', 'About']
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleNav = (link) => {
+    const id = link.toLowerCase()
+    setMobileOpen(false)
+
+    if (id === 'home') {
+      if (location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      } else {
+        navigate('/')
+      }
+      return
+    }
+
+    if (id === 'academy') {
+      navigate('/academy')
+      return
+    }
+
+    // Hash navigation for sections on home page
+    if (location.pathname !== '/') {
+      navigate('/')
+      setTimeout(() => {
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    } else {
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   return (
     <>
@@ -48,6 +83,7 @@ export default function Navbar() {
         >
           {/* Logo with 3D Canvas */}
           <motion.div 
+            onClick={() => handleNav('Home')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
@@ -71,9 +107,9 @@ export default function Navbar() {
           {/* Desktop Links with 3D Hover */}
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center', transformStyle: 'preserve-3d' }} className="nav-links">
             {links.map((link, i) => (
-              <motion.a 
+              <motion.button 
                 key={link} 
-                href={`#${link.toLowerCase()}`}
+                onClick={() => handleNav(link)}
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
@@ -86,12 +122,14 @@ export default function Navbar() {
                 whileTap={{ scale: 0.95 }}
                 style={{
                   fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.6)',
-                  textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '0.12em',
-                  display: 'inline-block'
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  textTransform: 'uppercase', letterSpacing: '0.12em',
+                  display: 'inline-flex', alignItems: 'center', gap: '0.4rem'
                 }}
               >
+                {link === 'Home' && <Home size={12} />}
                 {link}
-              </motion.a>
+              </motion.button>
             ))}
           </div>
 
@@ -157,21 +195,22 @@ export default function Navbar() {
             }}
           >
             {links.map((link, i) => (
-              <motion.a 
+              <motion.button 
                 key={link} 
-                href={`#${link.toLowerCase()}`}
+                onClick={() => handleNav(link)}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 + i * 0.05 }}
-                onClick={() => setMobileOpen(false)}
                 style={{ 
-                  color: 'rgba(255,255,255,0.8)', textDecoration: 'none', 
+                  color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)', textAlign: 'left',
                   fontSize: '1rem', fontWeight: 800, textTransform: 'uppercase', 
-                  letterSpacing: '0.1em', padding: '0.5rem 0',
-                  borderBottom: '1px solid rgba(255,255,255,0.05)'
+                  letterSpacing: '0.1em', padding: '0.75rem 0', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.75rem'
                 }}>
+                {link === 'Home' && <Home size={18} />}
                 {link}
-              </motion.a>
+              </motion.button>
             ))}
           </motion.div>
         )}

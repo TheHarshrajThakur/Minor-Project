@@ -1,9 +1,9 @@
 import { useState, Suspense } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stage } from '@react-three/drei'
 import { MainEngine } from '../3d/Models'
-import { Maximize2, Zap, Layers, RefreshCcw } from 'lucide-react'
+import { Maximize2, Zap, Layers, RefreshCcw, Network, X } from 'lucide-react'
 import ErrorBoundary from '../utils/ErrorBoundary'
 import { useStore } from '../../store/useStore'
 
@@ -37,9 +37,183 @@ function EngineScene({ isAnimated }) {
   )
 }
 
+const MIND_MAP_NODES = [
+  { id: 'ecu', title: 'Engine Control Unit', desc: 'Processes telemetry at 1000Hz. Manages ignition timing, AFR, and boost pressure.', x: '50%', y: '16%', color: '#06b6d4' },
+  { id: 'valvetrain', title: 'Valvetrain', desc: 'Eliminates valve float via mechanical closing. Enables safe operation past 15,000 RPM.', x: '80%', y: '28%', color: '#f43f5e' },
+  { id: 'intake', title: 'Intake System', desc: 'Optimized runner length for sonic wave tuning and maximum volumetric efficiency.', x: '80%', y: '55%', color: '#3b82f6' },
+  { id: 'exhaust', title: 'Exhaust System', desc: 'Tuned equal-length headers create negative pressure waves to extract burnt gases rapidly.', x: '80%', y: '82%', color: '#8b5cf6' },
+  { id: 'core', title: 'Combustion Core', desc: 'The thermodynamic heart. Stoichiometric burn generates massive rapid pressure spikes.', x: '50%', y: '48%', color: '#ef4444' },
+  { id: 'lubrication', title: 'Lubrication', desc: 'Active scavenging prevents oil starvation and cavitation during high-G lateral cornering.', x: '50%', y: '80%', color: '#f59e0b' },
+  { id: 'rotating', title: 'Rotating Assembly', desc: 'Forged 4340 steel crankshaft and titanium rods converting linear force to immense torque.', x: '20%', y: '48%', color: '#eab308' },
+  { id: 'thermal', title: 'Thermal Management', desc: 'High-flow coolant jackets removing latent heat to prevent pre-ignition and warping.', x: '20%', y: '75%', color: '#10b981' }
+];
+
+const MIND_MAP_CONNECTIONS = [
+  { from: 'ecu', to: 'core', color: '#06b6d4' },
+  { from: 'ecu', to: 'valvetrain', color: '#06b6d4' },
+  { from: 'ecu', to: 'intake', color: '#06b6d4' },
+  { from: 'intake', to: 'core', color: '#3b82f6' },
+  { from: 'valvetrain', to: 'core', color: '#f43f5e' },
+  { from: 'core', to: 'exhaust', color: '#ef4444' },
+  { from: 'core', to: 'rotating', color: '#ef4444' },
+  { from: 'rotating', to: 'lubrication', color: '#eab308' },
+  { from: 'core', to: 'thermal', color: '#ef4444' },
+  { from: 'lubrication', to: 'thermal', color: '#f59e0b' }
+];
+
+function EngineMindMap({ onClose }) {
+  const [activeNode, setActiveNode] = useState(null);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } }
+  };
+
+  const nodeVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0 }
+  };
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      style={{
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999,
+        background: 'rgba(5, 5, 8, 0.90)', backdropFilter: 'blur(20px)',
+        overflow: 'hidden'
+      }}
+    >
+      <style>{`
+        @keyframes flow {
+          to { stroke-dashoffset: -20; }
+        }
+      `}</style>
+      
+      {/* Ambient Glowing Orbs */}
+      <motion.div animate={{ x: [0, 100, 0], y: [0, -50, 0] }} transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'absolute', top: '10%', left: '20%', width: '40vw', height: '40vw', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 60%)', filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0 }} />
+      <motion.div animate={{ x: [0, -100, 0], y: [0, 50, 0] }} transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'absolute', bottom: '10%', right: '20%', width: '30vw', height: '30vw', background: 'radial-gradient(circle, rgba(239,68,68,0.1) 0%, transparent 60%)', filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0 }} />
+
+      {/* Animated Grid Background */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 1,
+        backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px)',
+        backgroundSize: '40px 40px', opacity: 0.6
+      }} />
+
+      {/* Rotating Radar Rings */}
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+        style={{ position: 'absolute', top: '48%', left: '50%', width: '600px', height: '600px', border: '1px dashed rgba(59,130,246,0.1)', borderRadius: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, pointerEvents: 'none' }} />
+      <motion.div animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        style={{ position: 'absolute', top: '48%', left: '50%', width: '400px', height: '400px', border: '1px solid rgba(59,130,246,0.05)', borderRadius: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, pointerEvents: 'none' }} />
+
+      <button onClick={onClose} style={{ position: 'absolute', top: '25px', right: '25px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: '45px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer', zIndex: 30, transition: 'all 0.2s', backdropFilter: 'blur(5px)' }} onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.2)'} onMouseLeave={e => e.currentTarget.style.background='rgba(255,255,255,0.05)'}>
+        <X size={22} />
+      </button>
+
+      {/* High-Tech Title */}
+      <div style={{ position: 'absolute', top: '30px', left: '30px', zIndex: 25, borderLeft: '3px solid #3b82f6', paddingLeft: '15px' }}>
+        <h3 style={{ color: '#fff', margin: 0, fontSize: '1.6rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif", letterSpacing: '0.05em' }}>DIAGNOSTIC SCHEMATIC</h3>
+        <p style={{ color: '#3b82f6', margin: 0, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 700, marginTop: '4px' }}>System Architecture Overview</p>
+      </div>
+
+      {/* Live Telemetry Overlay */}
+      <div style={{ position: 'absolute', bottom: '30px', left: '30px', zIndex: 25, fontFamily: "'Courier New', monospace", color: '#10b981', fontSize: '0.8rem', background: 'rgba(0,0,0,0.4)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.2)' }}>
+        <div style={{ marginBottom: '6px', color: '#6ee7b7' }}>&gt; SYSTEM_STATUS: <span style={{ color: '#fff', fontWeight: 'bold' }}>ONLINE</span></div>
+        <div style={{ marginBottom: '6px' }}>&gt; CORE_TEMP: <span style={{ color: '#fff' }}>94.2°C</span></div>
+        <div style={{ marginBottom: '6px' }}>&gt; OIL_PRESS: <span style={{ color: '#fff' }}>4.2 BAR</span></div>
+        <div style={{ marginBottom: '6px' }}>&gt; MANIFOLD_ABS: <span style={{ color: '#fff' }}>102 kPa</span></div>
+        <div>&gt; TELEMETRY_FREQ: <span style={{ color: '#fff' }}>1000 Hz</span></div>
+      </div>
+
+      {/* SVG Connections */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
+        {MIND_MAP_CONNECTIONS.map((conn, i) => {
+          const fromNode = MIND_MAP_NODES.find(n => n.id === conn.from);
+          const toNode = MIND_MAP_NODES.find(n => n.id === conn.to);
+          const isHighlighted = activeNode ? (activeNode === conn.from || activeNode === conn.to) : false;
+          
+          return (
+            <motion.line
+              key={`conn-${i}`}
+              x1={fromNode.x}
+              y1={fromNode.y}
+              x2={toNode.x}
+              y2={toNode.y}
+              stroke={isHighlighted ? '#fff' : conn.color}
+              strokeWidth={isHighlighted ? "3" : "2"}
+              strokeDasharray="4 6"
+              style={{ animation: isHighlighted ? 'flow 0.5s linear infinite' : 'flow 1.5s linear infinite', transition: 'all 0.3s ease' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: activeNode ? (isHighlighted ? 0.9 : 0.1) : 0.6 }}
+              transition={{ duration: 1.5, delay: 0.3 + (i * 0.1) }}
+            />
+          );
+        })}
+      </svg>
+
+      {/* Nodes */}
+      {MIND_MAP_NODES.map((node, i) => (
+        <motion.div
+          key={node.id}
+          variants={nodeVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ duration: 0.6, delay: 0.2 + (i * 0.1), type: 'spring', bounce: 0.4 }}
+          onMouseEnter={() => setActiveNode(node.id)}
+          onMouseLeave={() => setActiveNode(null)}
+          style={{
+            position: 'absolute', top: node.y, left: node.x,
+            transform: 'translate(-50%, -50%)',
+            zIndex: activeNode === node.id ? 50 : 20,
+            opacity: activeNode && activeNode !== node.id ? 0.3 : 1,
+            transition: 'opacity 0.3s ease'
+          }}
+        >
+          <motion.div
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 3 + (i % 3), repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              background: activeNode === node.id ? 'rgba(20,20,25,0.95)' : 'rgba(10,10,12,0.85)',
+              border: `1px solid ${activeNode === node.id ? node.color : 'rgba(255,255,255,0.08)'}`,
+              padding: '1.25rem', borderRadius: '0.75rem', width: '250px',
+              boxShadow: activeNode === node.id ? `0 0 40px ${node.color}40, inset 0 0 15px ${node.color}15` : '0 10px 30px rgba(0,0,0,0.6)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'pointer',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            {/* Node Decorator */}
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '3px', background: node.color, borderTopLeftRadius: '0.75rem', borderTopRightRadius: '0.75rem', opacity: activeNode === node.id ? 1 : 0.5, transition: 'opacity 0.3s' }} />
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', marginTop: '0.25rem' }}>
+              <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: node.color, boxShadow: `0 0 12px ${node.color}`, animation: activeNode === node.id ? 'pulse 1.5s infinite' : 'none' }} />
+              <h4 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 800, margin: 0, fontFamily: "'Outfit', sans-serif", letterSpacing: '0.02em' }}>{node.title}</h4>
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.8rem', lineHeight: 1.6, margin: 0 }}>
+              {node.desc}
+            </p>
+            
+            {/* Active State Details */}
+            {activeNode === node.id && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
+                <div style={{ fontSize: '0.7rem', color: node.color, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>STATUS: NOMINAL</div>
+                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace', marginTop: '4px' }}>DATA_LINK: ESTABLISHED</div>
+              </motion.div>
+            )}
+          </motion.div>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+}
+
 export default function ModelViewer() {
   const [source, setSource] = useState('native')
   const [isAnimated, setIsAnimated] = useState(true)
+  const [showMindMap, setShowMindMap] = useState(false)
 
   const REF_URL =
     'https://sketchfab.com/models/eea9d9252ab14298b50699a471dc2cee/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_watermark_link=0&ui_ar=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&preload=1&transparent=1&dnt=1'
@@ -54,21 +228,31 @@ export default function ModelViewer() {
   }
 
   return (
-    <section
-      id="showcase"
-      style={{ padding: '4rem 1.5rem', background: '#ffffff', position: 'relative' }}
-    >
+    <>
+      <AnimatePresence>
+        {showMindMap && <EngineMindMap onClose={() => setShowMindMap(false)} />}
+      </AnimatePresence>
+
+      <section
+        id="showcase"
+        style={{ padding: '4rem 1.5rem', background: '#050505', position: 'relative' }}
+      >
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative' }}>
 
         {/* Section Header */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+          <div className="section-label">
+            <span>Model Inspection</span>
+          </div>
+        </div>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <h2 style={{
-            fontSize: '2rem', fontWeight: 700, color: '#111827',
+            fontSize: '2rem', fontWeight: 700, color: '#ffffff',
             fontFamily: "'Inter', sans-serif", marginBottom: '0.5rem'
           }}>
             360° Interactive Engine Model
           </h2>
-          <p style={{ color: '#6b7280', fontSize: '1rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1rem' }}>
             Click and drag to rotate the model. Scroll to zoom in and out.
           </p>
         </div>
@@ -107,6 +291,19 @@ export default function ModelViewer() {
             position: 'absolute', bottom: '20px', right: '20px',
             zIndex: 10, display: 'flex', gap: '10px'
           }}>
+            <button
+              onClick={() => setShowMindMap(true)}
+              title="Explore Engine Logic"
+              style={{
+                width: '40px', height: '40px', borderRadius: '50%',
+                background: 'rgba(59, 130, 246, 0.9)', border: '1px solid #3b82f6',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: '#ffffff',
+                boxShadow: '0 4px 15px rgba(59,130,246,0.5)', transition: 'all 0.2s'
+              }}
+            >
+              <Network size={18} />
+            </button>
             {source === 'native' && (
               <button
                 onClick={() => setIsAnimated(!isAnimated)}
@@ -179,6 +376,7 @@ export default function ModelViewer() {
         </motion.div>
       </div>
     </section>
+    </>
   )
 }
 

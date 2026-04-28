@@ -80,18 +80,8 @@ export default function Hero() {
           style={{ textAlign: 'left' }}
         >
           {/* Badge */}
-          <motion.div variants={item} style={{ marginBottom: '2rem', display: 'inline-flex' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.4rem 1rem', borderRadius: '9999px',
-              border: '1px solid rgba(59,130,246,0.3)',
-              background: 'rgba(59,130,246,0.06)',
-              fontSize: '0.65rem', fontWeight: 900,
-              color: '#60a5fa', letterSpacing: '0.25em', textTransform: 'uppercase'
-            }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3b82f6', display: 'inline-block', boxShadow: '0 0 8px #3b82f6' }} />
-              Engineering The Future
-            </span>
+          <motion.div variants={item} className="section-label">
+            <span>Engineering The Future</span>
           </motion.div>
 
           {/* Headline */}

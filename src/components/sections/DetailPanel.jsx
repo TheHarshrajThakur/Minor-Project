@@ -63,8 +63,43 @@ export default function DetailPanel() {
     { icon: Settings, label: 'Grade', value: 'Industrial A1' },
   ]
 
+  const handleDownload = () => {
+    const content = `[CAD Schematic Data for ${activeModel.name}]\nReference ID: MC-2026-X0${activeModel.id}\nMaterial: ${activeModel.spec}\nType: ${activeModel.type}\n\n*This is a generated placeholder CAD file for demonstration.*`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${activeModel.type.toLowerCase()}_schematic.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `Mech Companion: ${activeModel.name}`,
+      text: `Check out the ${activeModel.name} 3D model and technical specs on Mech Companion!`,
+      url: window.location.href
+    };
+    
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error sharing:', err);
+      }
+    }
+  };
+
   return (
-    <div style={{ minHeight: '100vh', background: '#ffffff', paddingTop: '80px' }}>
+    <div style={{ minHeight: '100vh', background: '#050505', paddingTop: '80px' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '3rem' }}>
         
         {/* Back Button */}
@@ -74,12 +109,12 @@ export default function DetailPanel() {
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
               padding: '0.5rem 1rem', borderRadius: '0.5rem',
-              background: '#f3f4f6', border: '1px solid #e5e7eb',
-              color: '#374151', cursor: 'pointer', fontWeight: 600,
+              background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+              color: '#fff', cursor: 'pointer', fontWeight: 600,
               transition: 'all 0.2s'
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#e5e7eb' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#f3f4f6' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
           >
             <ArrowLeft size={16} /> Back to Catalog
           </button>
@@ -123,29 +158,29 @@ export default function DetailPanel() {
               
               <h1 style={{
                 fontSize: 'clamp(2.5rem, 4vw, 4rem)', fontWeight: 800,
-                color: '#111827', fontFamily: "'Inter', sans-serif",
+                color: '#ffffff', fontFamily: "'Inter', sans-serif",
                 lineHeight: 1.1, marginBottom: '0.5rem'
               }}>
                 {activeModel.name}
               </h1>
               
-              <div style={{ fontSize: '0.85rem', color: '#6b7280', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
                 Serial: MC-2026-X0{activeModel.id}
               </div>
             </div>
 
-            <p style={{ color: '#4b5563', lineHeight: 1.8, fontSize: '1.1rem' }}>
+            <p style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, fontSize: '1.1rem' }}>
               {activeModel.description} Engineered for high-stress industrial applications requiring extreme precision and durability.
             </p>
 
             {/* Technical Specification Table */}
             <div style={{ 
-              background: '#f9fafb', borderRadius: '1.25rem', border: '1px solid #e5e7eb', 
-              overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' 
+              background: 'rgba(255,255,255,0.02)', borderRadius: '1.25rem', border: '1px solid rgba(255,255,255,0.08)', 
+              overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.5)' 
             }}>
-              <div style={{ padding: '1.25rem 1.5rem', background: '#fff', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ padding: '1.25rem 1.5rem', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <Cpu size={18} color="#3b82f6" />
-                <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#111827', letterSpacing: '-0.01em' }}>Technical Specifications</span>
+                <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#ffffff', letterSpacing: '-0.01em' }}>Technical Specifications</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
                 {[
@@ -158,12 +193,12 @@ export default function DetailPanel() {
                 ].map((spec, i) => (
                   <div key={spec.label} style={{ 
                     padding: '1.25rem 1.5rem', 
-                    borderBottom: i < 4 ? '1px solid #e5e7eb' : 'none',
-                    borderRight: i % 2 === 0 ? '1px solid #e5e7eb' : 'none',
+                    borderBottom: i < 4 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                    borderRight: i % 2 === 0 ? '1px solid rgba(255,255,255,0.08)' : 'none',
                     fontSize: '0.85rem'
                   }}>
-                    <div style={{ color: '#6b7280', fontWeight: 600, marginBottom: '0.4rem', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{spec.label}</div>
-                    <div style={{ color: '#111827', fontWeight: 800 }}>{spec.value}</div>
+                    <div style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: '0.4rem', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{spec.label}</div>
+                    <div style={{ color: '#ffffff', fontWeight: 800 }}>{spec.value}</div>
                   </div>
                 ))}
               </div>
@@ -172,6 +207,7 @@ export default function DetailPanel() {
             {/* Premium Action Buttons */}
             <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
               <motion.button 
+                onClick={handleDownload}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 style={{ 
@@ -185,6 +221,7 @@ export default function DetailPanel() {
                 Download CAD Schematic
               </motion.button>
               <motion.button 
+                onClick={handleShare}
                 whileHover={{ scale: 1.02, y: -2, background: '#f3f4f6' }}
                 whileTap={{ scale: 0.98 }}
                 style={{ 
@@ -203,12 +240,12 @@ export default function DetailPanel() {
               border: '1px solid rgba(59,130,246,0.1)', display: 'flex', gap: '1.25rem',
               alignItems: 'center'
             }}>
-              <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(59,130,246,0.1)' }}>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}>
                 <ShieldCheck size={24} color="#3b82f6" />
               </div>
               <div>
-                <div style={{ fontWeight: 800, fontSize: '1rem', color: '#111827', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>A1 Engineering Grade</div>
-                <p style={{ fontSize: '0.85rem', color: '#6b7280', lineHeight: 1.5 }}>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: '#ffffff', marginBottom: '0.25rem', letterSpacing: '-0.01em' }}>A1 Engineering Grade</div>
+                <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>
                   Validated for high-stress aerospace and automotive applications.
                 </p>
               </div>

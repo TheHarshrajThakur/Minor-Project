@@ -72,11 +72,13 @@ function ModelCard({ comp, onClick, index }) {
       onMouseLeave={() => setIsHovered(false)}
       style={{
         borderRadius: '1.25rem', overflow: 'hidden',
-        background: '#ffffff',
-        border: '1px solid #e5e7eb',
+        background: 'rgba(20,20,20,0.6)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.08)',
         cursor: 'pointer', display: 'flex', flexDirection: 'column',
         transformStyle: 'preserve-3d',
-        boxShadow: '0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1)'
+        height: '420px',
+        boxShadow: '0 15px 35px -5px rgba(0,0,0,0.6), 0 0 15px rgba(59,130,246,0.05)'
       }}
     >
       <div id={`viewer-${comp.id}`} style={{ position: 'relative', height: '260px', background: '#f8f9fa' }}>
@@ -131,40 +133,37 @@ function ModelCard({ comp, onClick, index }) {
 
       {/* Info */}
       <div style={{
-        padding: '1.5rem', borderTop: '1px solid #e5e7eb',
-        background: '#ffffff',
+        padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.08)',
+        background: 'transparent',
         display: 'flex', flexDirection: 'column', gap: '0.75rem', flex: 1
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.75rem' }}>
           <div style={{ flex: 1 }}>
             <h3 style={{
-              fontSize: '1.15rem', fontWeight: 800, color: '#111827',
+              fontSize: '1.15rem', fontWeight: 800, color: '#ffffff',
               fontFamily: "'Inter', sans-serif",
               marginBottom: '0.4rem'
             }}>
               {comp.name}
             </h3>
-            <p style={{ fontSize: '0.85rem', color: '#6b7280', lineHeight: 1.5 }}>
-              {comp.description}
-            </p>
           </div>
           <div style={{
             width: '2rem', height: '2rem', borderRadius: '0.5rem', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: '#f3f4f6', border: '1px solid #e5e7eb',
-            transition: 'all 0.3s ease', color: '#374151'
+            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+            transition: 'all 0.3s ease', color: '#fff'
           }}
           onMouseEnter={e => { e.currentTarget.style.background = '#3b82f6'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#3b82f6' }}
-          onMouseLeave={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#374151'; e.currentTarget.style.borderColor = '#e5e7eb' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
           >
             <ArrowUpRight size={14} color="currentColor" />
           </div>
         </div>
         <div style={{
           display: 'flex', justifyContent: 'space-between',
-          paddingTop: '0.75rem', borderTop: '1px solid #e5e7eb'
+          paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.08)'
         }}>
-          <span style={{ fontSize: '0.7rem', fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Grade A1</span>
+          <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Grade A1</span>
           <span style={{ fontSize: '0.7rem', fontWeight: 700, color: comp.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{comp.spec}</span>
         </div>
       </div>
@@ -196,15 +195,14 @@ export default function ComponentGallery() {
   }
 
   return (
-    <section id="inventory" style={{ padding: '8rem 1.5rem', background: '#f9fafb', position: 'relative' }}>
+    <section id="inventory" style={{ padding: '8rem 1.5rem', background: '#050505', position: 'relative' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
         {/* Header Area */}
         <div style={{ marginBottom: '4rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '2rem' }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
-                <div style={{ width: '2rem', height: '1px', background: '#3b82f6' }} />
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#3b82f6', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Technical Archive</span>
+              <div className="section-label">
+                <span>Technical Archive</span>
               </div>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
@@ -212,7 +210,7 @@ export default function ComponentGallery() {
                 transition={{ duration: 0.8 }}
                 style={{
                   fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900,
-                  color: '#111827',
+                  color: '#ffffff',
                   fontFamily: "'Outfit', sans-serif", lineHeight: 1.1,
                   letterSpacing: '-0.02em'
                 }}
@@ -231,13 +229,14 @@ export default function ComponentGallery() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
                     padding: '0.85rem 1.5rem', borderRadius: '2rem',
-                    border: '1px solid #e5e7eb', background: '#fff',
+                    border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)',
                     width: '280px', fontSize: '0.9rem', outline: 'none',
+                    color: '#fff',
                     boxShadow: '0 4px 10px rgba(0,0,0,0.03)',
                     transition: 'all 0.3s'
                   }}
                   onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                 />
               </div>
             </div>
@@ -251,10 +250,10 @@ export default function ComponentGallery() {
                 onClick={() => setActiveCategory(cat)}
                 style={{
                   padding: '0.6rem 1.5rem', borderRadius: '2rem',
-                  background: activeCategory === cat ? '#3b82f6' : '#fff',
-                  color: activeCategory === cat ? '#fff' : '#4b5563',
+                  background: activeCategory === cat ? '#3b82f6' : 'rgba(255,255,255,0.05)',
+                  color: activeCategory === cat ? '#fff' : 'rgba(255,255,255,0.6)',
                   border: '1px solid',
-                  borderColor: activeCategory === cat ? '#3b82f6' : '#e5e7eb',
+                  borderColor: activeCategory === cat ? '#3b82f6' : 'rgba(255,255,255,0.1)',
                   fontSize: '0.85rem', fontWeight: 700,
                   cursor: 'pointer', transition: 'all 0.3s',
                   boxShadow: activeCategory === cat ? '0 10px 20px -5px rgba(59,130,246,0.4)' : 'none'
@@ -271,10 +270,17 @@ export default function ComponentGallery() {
           {filteredComponents.length > 0 ? (
             <motion.div 
               layout
-              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '2.5rem' }}
+              style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: 'center', 
+                gap: '2.5rem' 
+              }}
             >
               {filteredComponents.map((comp, i) => (
-                <ModelCard key={comp.id} comp={comp} index={i} onClick={() => handleCardClick(comp)} />
+                <div key={comp.id} style={{ width: 'min(100%, 360px)' }}>
+                  <ModelCard comp={comp} index={i} onClick={() => handleCardClick(comp)} />
+                </div>
               ))}
             </motion.div>
           ) : (
