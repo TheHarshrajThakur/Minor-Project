@@ -14,6 +14,8 @@ import Academy from './components/sections/Academy'
 import { AnimatedLogo } from './components/3d/Models'
 
 import BackgroundGlow from './components/layout/BackgroundGlow'
+import HandGestureController from './components/utils/HandGestureController'
+import { useStore } from './store/useStore'
 
 function HomePage() {
   const navigate = useNavigate()
@@ -151,6 +153,7 @@ function HomePage() {
 export default function App() {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 })
+  const isHandTracking = useStore(state => state.isHandTracking)
 
   useEffect(() => {
     const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) })

@@ -1,16 +1,35 @@
-# React + Vite
+# Mech Companion
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An advanced, interactive 3D platform for mechanical engineering education.
 
-Currently, two official plugins are available:
+## 🚀 Overview
+Mech Companion bridges the gap between theoretical mechanical engineering and practical visualization. It features high-fidelity 3D models, hand gesture-based controls, and a comprehensive engineering academy.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠 Technical Stack
+- **Core**: React 18, Vite
+- **3D**: Three.js, React Three Fiber, React Three Drei
+- **Motion**: Framer Motion, Lenis (Smooth Scroll)
+- **Computer Vision**: MediaPipe (Hand Tracking)
+- **State**: Zustand
+- **Icons**: Lucide React
 
-## React Compiler
+## ✨ Key Features
+- **360° Interactive Models**: Inspect complex assemblies like the Main Engine or V8 Crankshafts.
+- **Hand Gesture Control**: Use your webcam and palm movements to rotate and zoom models in real-time.
+- **Engineering Academy**: A knowledge base with searchable modules on Thermodynamics, Fluid Dynamics, and more.
+- **Technical Library**: A curated collection of industrial components with full specifications.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Installation
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+## 📂 Project Structure
+- `src/components/3d`: Three.js model components.
+- `src/components/sections`: Main UI sections (Academy, Inventory, Showcase).
+- `src/components/utils`: Utility components like Hand Tracking and Error Boundaries.
+- `src/store`: Global state management.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+© 2026 Mech Companion. Industrial-Grade Education.

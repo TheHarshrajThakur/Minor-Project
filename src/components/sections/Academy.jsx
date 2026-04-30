@@ -184,6 +184,11 @@ const ACADEMY_DATA = [
   }
 ]
 
+/**
+ * Academy Component
+ * A comprehensive educational interface providing technical modules on engineering subjects.
+ * Includes a real-time search system and interactive content panels.
+ */
 export default function Academy() {
   const [activeTopic, setActiveTopic] = useState(ACADEMY_DATA[0].id)
   const [searchQuery, setSearchQuery] = useState('')

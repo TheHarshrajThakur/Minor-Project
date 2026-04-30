@@ -1,14 +1,19 @@
 import { Suspense, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Download, Settings, ShieldCheck, Cpu } from 'lucide-react'
+import { ArrowLeft, Download, Settings, ShieldCheck, Cpu, Hand, Maximize2 } from 'lucide-react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stage } from '@react-three/drei'
 import { useParams, useNavigate } from 'react-router-dom'
 import { CrankshaftModel, PistonModel, SparkPlugModel, InternalsModel, EngineBlockModel } from '../3d/Models'
 import ErrorBoundary from '../utils/ErrorBoundary'
 import { COMPONENTS } from './ComponentGallery'
+import HandControls from '../utils/HandControls'
+import HandGestureController from '../utils/HandGestureController'
+import { useStore } from '../../store/useStore'
+import { useRef } from 'react'
 
 function DetailModel({ type, color }) {
+  const controlsRef = useRef(null)
   const Model = type === 'crankshaft' ? CrankshaftModel : 
                 type === 'piston' ? PistonModel : 
                 type === 'spark_plug' ? SparkPlugModel : 
@@ -28,12 +33,18 @@ function DetailModel({ type, color }) {
             <Model color={color} />
           </Stage>
         </Suspense>
-        <OrbitControls enableZoom={true} enablePan={false} />
+        <OrbitControls ref={controlsRef} enableZoom={true} enablePan={false} />
+        <HandControls controlsRef={controlsRef} targetId={`detail-${id}`} />
       </Canvas>
     </ErrorBoundary>
   )
 }
 
+/**
+ * DetailPanel Component
+ * Renders the full specification page for a selected component.
+ * Includes a large-scale 3D viewer, technical data tables, and CAD download options.
+ */
 export default function DetailPanel() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -124,17 +135,72 @@ export default function DetailPanel() {
           
           {/* Left Column: 3D Viewer */}
           <motion.div
+            id={`viewer-detail-${activeModel.id}`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
             style={{
+              position: 'relative',
               height: '70vh', minHeight: '500px',
               background: '#f8f9fa', borderRadius: '1.5rem',
               border: '1px solid #e5e7eb', overflow: 'hidden',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25), 0 0 20px rgba(59,130,246,0.1)'
             }}
           >
+            {/* Controls Overlay */}
+            <div style={{
+              position: 'absolute', top: '1.5rem', right: '1.5rem',
+              zIndex: 10, display: 'flex', gap: '12px'
+            }}>
+              <button
+                onClick={() => {
+                  const targetId = `detail-${activeModel.id}`;
+                  const currentlyActive = useStore.getState().isHandTracking && useStore.getState().handControlTarget === targetId;
+                  useStore.getState().setHandTracking(!currentlyActive, targetId);
+                }}
+                style={{
+                  width: '40px', height: '40px', borderRadius: '10px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: (useStore(state => state.isHandTracking) && useStore(state => state.handControlTarget) === `detail-${activeModel.id}`) ? 'rgba(16, 185, 129, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                  border: (useStore(state => state.isHandTracking) && useStore(state => state.handControlTarget) === `detail-${activeModel.id}`) ? '1px solid #10b981' : '1px solid #e5e7eb',
+                  cursor: 'pointer', color: (useStore(state => state.isHandTracking) && useStore(state => state.handControlTarget) === `detail-${activeModel.id}`) ? '#fff' : '#374151',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)', transition: 'all 0.2s'
+                }}
+                title={(useStore(state => state.isHandTracking) && useStore(state => state.handControlTarget) === `detail-${activeModel.id}`) ? "Disable Hand Control" : "Enable Hand Control"}
+              >
+                <Hand size={18} />
+              </button>
+              <button
+                onClick={() => {
+                  const viewer = document.getElementById(`viewer-detail-${activeModel.id}`);
+                  if (!document.fullscreenElement) {
+                    viewer.requestFullscreen().catch(err => console.log(err));
+                  } else {
+                    document.exitFullscreen();
+                  }
+                }}
+                style={{
+                  width: '40px', height: '40px', borderRadius: '10px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'rgba(255, 255, 255, 0.9)', border: '1px solid #e5e7eb',
+                  cursor: 'pointer', color: '#374151',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)', transition: 'all 0.2s'
+                }}
+                title="Fullscreen"
+              >
+                <Maximize2 size={18} />
+              </button>
+            </div>
             <DetailModel type={activeModel.type} color={activeModel.color} />
+            {useStore(state => state.isHandTracking) && useStore(state => state.handControlTarget) === `detail-${activeModel.id}` && (
+              <>
+                <div style={{ position: 'absolute', top: '1.5rem', left: '1.5rem', zIndex: 10, display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.9)', padding: '8px 12px', borderRadius: '20px', border: '1px solid #e5e7eb', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', pointerEvents: 'none' }}>
+                  <Hand size={16} color="#10b981" />
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: '#374151' }}>Hand Control Active</span>
+                </div>
+                <HandGestureController />
+              </>
+            )}
           </motion.div>
 
           {/* Right Column: Information */}

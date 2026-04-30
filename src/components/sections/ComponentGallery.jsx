@@ -4,9 +4,11 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stage } from '@react-three/drei'
 import { useStore } from '../../store/useStore'
 import { CrankshaftModel, PistonModel, SparkPlugModel, InternalsModel, EngineBlockModel } from '../3d/Models'
-import { ArrowUpRight, Maximize2 } from 'lucide-react'
+import { ArrowUpRight, Maximize2, Hand } from 'lucide-react'
 import ErrorBoundary from '../utils/ErrorBoundary'
 import { useNavigate } from 'react-router-dom'
+import HandControls from '../utils/HandControls'
+import HandGestureController from '../utils/HandGestureController'
 
 export const COMPONENTS = [
   {
@@ -34,7 +36,10 @@ export const COMPONENTS = [
 function ModelCard({ comp, onClick, index }) {
   const [isHovered, setIsHovered] = useState(false)
   const ref = useRef(null)
+  const controlsRef = useRef(null)
   const isInView = useInView(ref, { margin: "200px 0px" })
+  const isHandTracking = useStore(state => state.isHandTracking)
+  const setHandTracking = useStore(state => state.setHandTracking)
   
   const Model = comp.type === 'crankshaft' ? CrankshaftModel : 
                 comp.type === 'piston' ? PistonModel : 
@@ -82,6 +87,7 @@ function ModelCard({ comp, onClick, index }) {
       }}
     >
       <div id={`viewer-${comp.id}`} style={{ position: 'relative', height: '260px', background: '#f8f9fa' }}>
+        {isHandTracking && useStore.getState().handControlTarget === `comp-${comp.id}` && <HandGestureController />}
         {isInView && (
           <ErrorBoundary>
           <Canvas
@@ -95,7 +101,8 @@ function ModelCard({ comp, onClick, index }) {
                 <Model color={comp.color} />
               </Stage>
             </Suspense>
-            <OrbitControls enableZoom={true} enablePan={false} />
+            <OrbitControls ref={controlsRef} enableZoom={true} enablePan={false} />
+            <HandControls controlsRef={controlsRef} targetId={`comp-${comp.id}`} />
           </Canvas>
         </ErrorBoundary>
         )}
@@ -128,6 +135,29 @@ function ModelCard({ comp, onClick, index }) {
           title="Fullscreen"
         >
           <Maximize2 size={14} />
+        </button>
+
+        {/* Hand Toggle */}
+        <button
+          onClick={(e) => { 
+            e.stopPropagation(); 
+            const isCurrentTarget = isHandTracking && useStore.getState().handControlTarget === `comp-${comp.id}`;
+            setHandTracking(!isCurrentTarget, `comp-${comp.id}`); 
+          }}
+          style={{
+            position: 'absolute', top: '1rem', right: '3.5rem',
+            width: '32px', height: '32px', borderRadius: '8px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: (isHandTracking && useStore.getState().handControlTarget === `comp-${comp.id}`) ? 'rgba(16, 185, 129, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+            border: (isHandTracking && useStore.getState().handControlTarget === `comp-${comp.id}`) ? '1px solid #10b981' : '1px solid #e5e7eb',
+            cursor: 'pointer', color: (isHandTracking && useStore.getState().handControlTarget === `comp-${comp.id}`) ? '#fff' : '#374151',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+            transition: 'all 0.2s',
+            zIndex: 10
+          }}
+          title={(isHandTracking && useStore.getState().handControlTarget === `comp-${comp.id}`) ? "Disable Hand Control" : "Enable Hand Control"}
+        >
+          <Hand size={14} />
         </button>
       </div>
 
@@ -171,6 +201,11 @@ function ModelCard({ comp, onClick, index }) {
   )
 }
 
+/**
+ * ComponentGallery Component
+ * Renders a searchable and filterable grid of engineering components.
+ * Each component is displayed in a ModelCard with 3D preview and gesture controls.
+ */
 export default function ComponentGallery() {
   const setActiveModel = useStore(state => state.setActiveModel)
   const navigate = useNavigate()

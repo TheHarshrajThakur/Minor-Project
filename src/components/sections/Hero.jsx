@@ -60,14 +60,13 @@ export default function Hero() {
       {/* Grid Background */}
       <div className="bg-grid" style={{ position: 'absolute', inset: 0, opacity: 0.4 }} />
 
-      {/* Gradient Orbs */}
+      {/* Static Accent Glow (Performance Optimized) */}
       <div style={{
-        position: 'absolute', top: '20%', left: '15%',
-        width: '500px', height: '500px',
-        background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)',
-        borderRadius: '50%', filter: 'blur(40px)',
-        animation: 'breathe 6s ease-in-out infinite'
-      }} className="animate-breathe" />
+        position: 'absolute', top: '10%', left: '15%',
+        width: '600px', height: '600px',
+        background: 'radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 60%)',
+        borderRadius: '50%', filter: 'blur(60px)', pointerEvents: 'none'
+      }} />
 
       {/* Main Content Grid */}
       <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', position: 'relative', zIndex: 1 }}>
@@ -87,32 +86,24 @@ export default function Hero() {
           {/* Headline */}
           <motion.h1 variants={item} style={{
             fontSize: 'clamp(3.5rem, 6vw, 7rem)',
-            fontWeight: 900, lineHeight: 0.9,
-            letterSpacing: '-0.04em', textTransform: 'uppercase',
+            fontWeight: 800, lineHeight: 0.95,
+            letterSpacing: '-0.02em', textTransform: 'uppercase',
             marginBottom: '1.5rem', fontFamily: "'Outfit', sans-serif"
           }}>
-            <span style={{ display: 'block', color: '#fff' }}>Mechanical</span>
-            <motion.span 
-              animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
-              transition={{ duration: 5, ease: "linear", repeat: Infinity }}
-              style={{ 
+            <span style={{ display: 'block', color: '#f8fafc' }}>Mechanical</span>
+            <span style={{ 
                 display: 'block',
-                backgroundImage: 'linear-gradient(270deg, #3b82f6, #8b5cf6, #3b82f6)',
-                backgroundSize: '200% 200%',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                color: 'transparent'
+                color: '#3b82f6',
               }}
             >
               Mastery
-            </motion.span>
+            </span>
           </motion.h1>
 
           {/* Subtext */}
           <motion.p variants={item} style={{
             fontSize: 'clamp(1rem, 1.5vw, 1.15rem)',
-            color: 'rgba(255,255,255,0.45)',
+            color: '#94a3b8',
             fontWeight: 400, lineHeight: 1.7,
             maxWidth: '500px', marginBottom: '2.5rem',
           }}>

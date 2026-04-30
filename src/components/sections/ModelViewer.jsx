@@ -1,13 +1,19 @@
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, Stage } from '@react-three/drei'
+import * as THREE from 'three'
 import { MainEngine } from '../3d/Models'
-import { Maximize2, Zap, Layers, RefreshCcw, Network, X } from 'lucide-react'
+import { Maximize2, Zap, Layers, RefreshCcw, Network, X, Hand } from 'lucide-react'
 import ErrorBoundary from '../utils/ErrorBoundary'
 import { useStore } from '../../store/useStore'
+import HandGestureController from '../utils/HandGestureController'
+import HandControls from '../utils/HandControls'
 
 function EngineScene({ isAnimated }) {
+  const controlsRef = useRef(null);
+  const isHandTracking = useStore(state => state.isHandTracking);
+
   return (
     <ErrorBoundary>
       <Canvas
@@ -24,14 +30,16 @@ function EngineScene({ isAnimated }) {
           </Stage>
         </Suspense>
         <OrbitControls 
+          ref={controlsRef}
           enableZoom={true} 
           enablePan={false} 
           makeDefault 
-          autoRotate={isAnimated}
+          autoRotate={isAnimated && !(isHandTracking && useStore.getState().handControlTarget === 'main')}
           autoRotateSpeed={2}
           minPolarAngle={Math.PI / 4}
           maxPolarAngle={Math.PI / 2}
         />
+        <HandControls controlsRef={controlsRef} targetId="main" />
       </Canvas>
     </ErrorBoundary>
   )
@@ -83,50 +91,38 @@ function EngineMindMap({ onClose }) {
       exit="exit"
       style={{
         position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999,
-        background: 'rgba(5, 5, 8, 0.90)', backdropFilter: 'blur(20px)',
+        background: 'rgba(10, 10, 14, 0.98)', 
         overflow: 'hidden'
       }}
     >
-      <style>{`
-        @keyframes flow {
-          to { stroke-dashoffset: -20; }
-        }
-      `}</style>
       
-      {/* Ambient Glowing Orbs */}
-      <motion.div animate={{ x: [0, 100, 0], y: [0, -50, 0] }} transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'absolute', top: '10%', left: '20%', width: '40vw', height: '40vw', background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 60%)', filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0 }} />
-      <motion.div animate={{ x: [0, -100, 0], y: [0, 50, 0] }} transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }} style={{ position: 'absolute', bottom: '10%', right: '20%', width: '30vw', height: '30vw', background: 'radial-gradient(circle, rgba(239,68,68,0.1) 0%, transparent 60%)', filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0 }} />
+      {/* Static Subtle Glow */}
+      <div style={{ position: 'absolute', top: '10%', left: '20%', width: '40vw', height: '40vw', background: 'radial-gradient(circle, rgba(59,130,246,0.03) 0%, transparent 60%)', filter: 'blur(60px)', pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* Animated Grid Background */}
+      {/* Grid Background */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 1,
-        backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.15) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px)',
         backgroundSize: '40px 40px', opacity: 0.6
       }} />
 
-      {/* Rotating Radar Rings */}
-      <motion.div animate={{ rotate: 360 }} transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-        style={{ position: 'absolute', top: '48%', left: '50%', width: '600px', height: '600px', border: '1px dashed rgba(59,130,246,0.1)', borderRadius: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, pointerEvents: 'none' }} />
-      <motion.div animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        style={{ position: 'absolute', top: '48%', left: '50%', width: '400px', height: '400px', border: '1px solid rgba(59,130,246,0.05)', borderRadius: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, pointerEvents: 'none' }} />
-
-      <button onClick={onClose} style={{ position: 'absolute', top: '25px', right: '25px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: '45px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer', zIndex: 30, transition: 'all 0.2s', backdropFilter: 'blur(5px)' }} onMouseEnter={e => e.currentTarget.style.background='rgba(239,68,68,0.2)'} onMouseLeave={e => e.currentTarget.style.background='rgba(255,255,255,0.05)'}>
+      <button onClick={onClose} style={{ position: 'absolute', top: '25px', right: '25px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: '45px', height: '45px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer', zIndex: 30, transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.background='rgba(255,255,255,0.05)'}>
         <X size={22} />
       </button>
 
-      {/* High-Tech Title */}
+      {/* Title */}
       <div style={{ position: 'absolute', top: '30px', left: '30px', zIndex: 25, borderLeft: '3px solid #3b82f6', paddingLeft: '15px' }}>
-        <h3 style={{ color: '#fff', margin: 0, fontSize: '1.6rem', fontWeight: 800, fontFamily: "'Outfit', sans-serif", letterSpacing: '0.05em' }}>DIAGNOSTIC SCHEMATIC</h3>
-        <p style={{ color: '#3b82f6', margin: 0, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em', fontWeight: 700, marginTop: '4px' }}>System Architecture Overview</p>
+        <h3 style={{ color: '#fff', margin: 0, fontSize: '1.4rem', fontWeight: 700, fontFamily: "'Inter', sans-serif", letterSpacing: '-0.02em' }}>System Architecture</h3>
+        <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.8rem', fontWeight: 500, marginTop: '4px' }}>Interactive Subsystem Map</p>
       </div>
 
-      {/* Live Telemetry Overlay */}
-      <div style={{ position: 'absolute', bottom: '30px', left: '30px', zIndex: 25, fontFamily: "'Courier New', monospace", color: '#10b981', fontSize: '0.8rem', background: 'rgba(0,0,0,0.4)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.2)' }}>
-        <div style={{ marginBottom: '6px', color: '#6ee7b7' }}>&gt; SYSTEM_STATUS: <span style={{ color: '#fff', fontWeight: 'bold' }}>ONLINE</span></div>
-        <div style={{ marginBottom: '6px' }}>&gt; CORE_TEMP: <span style={{ color: '#fff' }}>94.2°C</span></div>
-        <div style={{ marginBottom: '6px' }}>&gt; OIL_PRESS: <span style={{ color: '#fff' }}>4.2 BAR</span></div>
-        <div style={{ marginBottom: '6px' }}>&gt; MANIFOLD_ABS: <span style={{ color: '#fff' }}>102 kPa</span></div>
-        <div>&gt; TELEMETRY_FREQ: <span style={{ color: '#fff' }}>1000 Hz</span></div>
+      {/* Specifications Panel */}
+      <div style={{ position: 'absolute', bottom: '30px', left: '30px', zIndex: 25, fontFamily: "'Inter', sans-serif", color: '#94a3b8', fontSize: '0.8rem', background: 'rgba(20,20,25,0.8)', padding: '20px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', width: '280px' }}>
+        <div style={{ color: '#fff', fontWeight: 600, marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>Global Specifications</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}><span>Core Temp</span> <span style={{ color: '#f8fafc' }}>94.2°C</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}><span>Oil Pressure</span> <span style={{ color: '#f8fafc' }}>4.2 BAR</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}><span>Manifold Abs</span> <span style={{ color: '#f8fafc' }}>102 kPa</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Telemetry Freq</span> <span style={{ color: '#f8fafc' }}>1000 Hz</span></div>
       </div>
 
       {/* SVG Connections */}
@@ -143,13 +139,12 @@ function EngineMindMap({ onClose }) {
               y1={fromNode.y}
               x2={toNode.x}
               y2={toNode.y}
-              stroke={isHighlighted ? '#fff' : conn.color}
-              strokeWidth={isHighlighted ? "3" : "2"}
-              strokeDasharray="4 6"
-              style={{ animation: isHighlighted ? 'flow 0.5s linear infinite' : 'flow 1.5s linear infinite', transition: 'all 0.3s ease' }}
+              stroke={isHighlighted ? '#fff' : 'rgba(255,255,255,0.2)'}
+              strokeWidth={isHighlighted ? "2" : "1"}
+              strokeDasharray={isHighlighted ? "none" : "4 4"}
               initial={{ opacity: 0 }}
-              animate={{ opacity: activeNode ? (isHighlighted ? 0.9 : 0.1) : 0.6 }}
-              transition={{ duration: 1.5, delay: 0.3 + (i * 0.1) }}
+              animate={{ opacity: activeNode ? (isHighlighted ? 1 : 0.1) : 0.6 }}
+              transition={{ duration: 0.3 }}
             />
           );
         })}
@@ -162,7 +157,7 @@ function EngineMindMap({ onClose }) {
           variants={nodeVariants}
           initial="hidden"
           animate="visible"
-          transition={{ duration: 0.6, delay: 0.2 + (i * 0.1), type: 'spring', bounce: 0.4 }}
+          transition={{ duration: 0.4, delay: 0.1 + (i * 0.05), ease: 'easeOut' }}
           onMouseEnter={() => setActiveNode(node.id)}
           onMouseLeave={() => setActiveNode(null)}
           style={{
@@ -173,47 +168,44 @@ function EngineMindMap({ onClose }) {
             transition: 'opacity 0.3s ease'
           }}
         >
-          <motion.div
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 3 + (i % 3), repeat: Infinity, ease: 'easeInOut' }}
+          <div
             style={{
-              background: activeNode === node.id ? 'rgba(20,20,25,0.95)' : 'rgba(10,10,12,0.85)',
-              border: `1px solid ${activeNode === node.id ? node.color : 'rgba(255,255,255,0.08)'}`,
-              padding: '1.25rem', borderRadius: '0.75rem', width: '250px',
-              boxShadow: activeNode === node.id ? `0 0 40px ${node.color}40, inset 0 0 15px ${node.color}15` : '0 10px 30px rgba(0,0,0,0.6)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'pointer',
-              backdropFilter: 'blur(10px)'
+              background: activeNode === node.id ? 'rgba(30,30,35,0.95)' : 'rgba(20,20,25,0.9)',
+              border: `1px solid ${activeNode === node.id ? node.color : 'rgba(255,255,255,0.1)'}`,
+              padding: '1.25rem', borderRadius: '6px', width: '250px',
+              boxShadow: activeNode === node.id ? `0 8px 30px rgba(0,0,0,0.5)` : '0 4px 20px rgba(0,0,0,0.4)',
+              transition: 'all 0.2s ease', cursor: 'pointer'
             }}
           >
             {/* Node Decorator */}
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '3px', background: node.color, borderTopLeftRadius: '0.75rem', borderTopRightRadius: '0.75rem', opacity: activeNode === node.id ? 1 : 0.5, transition: 'opacity 0.3s' }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '2px', background: node.color, borderTopLeftRadius: '6px', borderTopRightRadius: '6px', opacity: activeNode === node.id ? 1 : 0.5, transition: 'opacity 0.2s' }} />
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem', marginTop: '0.25rem' }}>
-              <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: node.color, boxShadow: `0 0 12px ${node.color}`, animation: activeNode === node.id ? 'pulse 1.5s infinite' : 'none' }} />
-              <h4 style={{ color: '#fff', fontSize: '1.05rem', fontWeight: 800, margin: 0, fontFamily: "'Outfit', sans-serif", letterSpacing: '0.02em' }}>{node.title}</h4>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: node.color }} />
+              <h4 style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 600, margin: 0, fontFamily: "'Inter', sans-serif" }}>{node.title}</h4>
             </div>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.8rem', lineHeight: 1.6, margin: 0 }}>
+            <p style={{ color: '#94a3b8', fontSize: '0.8rem', lineHeight: 1.5, margin: 0 }}>
               {node.desc}
             </p>
-            
-            {/* Active State Details */}
-            {activeNode === node.id && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
-                <div style={{ fontSize: '0.7rem', color: node.color, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>STATUS: NOMINAL</div>
-                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace', marginTop: '4px' }}>DATA_LINK: ESTABLISHED</div>
-              </motion.div>
-            )}
-          </motion.div>
+          </div>
         </motion.div>
       ))}
     </motion.div>
   );
 }
 
+/**
+ * ModelViewer Component
+ * The featured 3D showcase section. Supports native 3D rendering and external engineering references.
+ * Features system architecture mind-mapping and hand gesture interaction.
+ */
 export default function ModelViewer() {
-  const [source, setSource] = useState('native')
-  const [isAnimated, setIsAnimated] = useState(true)
-  const [showMindMap, setShowMindMap] = useState(false)
+  const [source, setSource] = useState('native'); // 'native' or 'reference'
+  const [showMindMap, setShowMindMap] = useState(false);
+  const [isAnimated, setIsAnimated] = useState(true);
+  
+  const isHandTracking = useStore(state => state.isHandTracking);
+  const setHandTracking = useStore(state => state.setHandTracking);
 
   const REF_URL =
     'https://sketchfab.com/models/eea9d9252ab14298b50699a471dc2cee/embed?autostart=1&ui_infos=0&ui_watermark=0&ui_watermark_link=0&ui_ar=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_annotations=0&ui_stop=0&preload=1&transparent=1&dnt=1'
@@ -305,7 +297,26 @@ export default function ModelViewer() {
               <Network size={18} />
             </button>
             {source === 'native' && (
-              <button
+              <>
+                <button
+                  onClick={() => {
+                    const currentlyActive = isHandTracking && useStore.getState().handControlTarget === 'main';
+                    setHandTracking(!currentlyActive, 'main');
+                  }}
+                  title={isHandTracking && useStore.getState().handControlTarget === 'main' ? "Disable Hand Control" : "Enable Hand Control"}
+                  style={{
+                    width: '40px', height: '40px', borderRadius: '50%',
+                    background: (isHandTracking && useStore.getState().handControlTarget === 'main') ? 'rgba(16, 185, 129, 0.9)' : 'rgba(255, 255, 255, 0.9)', 
+                    border: (isHandTracking && useStore.getState().handControlTarget === 'main') ? '1px solid #10b981' : '1px solid #e5e7eb',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', color: (isHandTracking && useStore.getState().handControlTarget === 'main') ? '#ffffff' : '#6b7280',
+                    boxShadow: (isHandTracking && useStore.getState().handControlTarget === 'main') ? '0 4px 15px rgba(16,185,129,0.5)' : '0 2px 5px rgba(0,0,0,0.05)',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Hand size={18} />
+                </button>
+                <button
                 onClick={() => setIsAnimated(!isAnimated)}
                 title={isAnimated ? "Pause Auto-Rotate" : "Start Auto-Rotate"}
                 style={{
@@ -318,6 +329,7 @@ export default function ModelViewer() {
               >
                 <Zap size={18} />
               </button>
+              </>
             )}
             
             <button
@@ -357,6 +369,7 @@ export default function ModelViewer() {
                   Loading Model...
                 </div>
               }>
+                {isHandTracking && useStore.getState().handControlTarget === 'main' && <HandGestureController />}
                 <EngineScene isAnimated={isAnimated} />
               </Suspense>
             ) : (
