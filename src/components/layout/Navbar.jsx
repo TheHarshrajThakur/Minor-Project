@@ -107,13 +107,13 @@ export default function Navbar() {
             width: 'fit-content', minWidth: 'min(90vw, 800px)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '0.5rem 1rem 0.5rem 1.5rem',
-            background: scrolled ? 'rgba(5, 5, 5, 0.7)' : 'rgba(5, 5, 5, 0.2)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: scrolled ? 'rgba(10, 15, 30, 0.85)' : 'rgba(15, 20, 35, 0.4)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(59, 130, 246, 0.15)',
             borderRadius: '100px',
             transformStyle: 'preserve-3d',
-            boxShadow: scrolled ? '0 20px 40px -15px rgba(0,0,0,0.5)' : 'none',
+            boxShadow: scrolled ? '0 25px 50px -15px rgba(0,0,0,0.7), inset 0 0 10px rgba(59,130,246,0.05)' : 'none',
             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         >
