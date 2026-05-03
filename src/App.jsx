@@ -156,10 +156,10 @@ export default function App() {
   const isHandTracking = useStore(state => state.isHandTracking)
 
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.0, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) })
+    const lenis = new Lenis({ duration: 0.8, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) })
     function raf(time) { lenis.raf(time); requestAnimationFrame(raf) }
     const id = requestAnimationFrame(raf)
-    return () => { lenis.destroy() }
+    return () => { lenis.destroy(); cancelAnimationFrame(id) }
   }, [])
 
   return (

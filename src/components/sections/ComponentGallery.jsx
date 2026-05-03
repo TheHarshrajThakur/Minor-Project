@@ -63,7 +63,7 @@ function ModelCard({ comp, onClick, index }) {
       initial={{ opacity: 0, y: 50, scale: 0.95 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, delay: index * 0.1, type: 'spring', stiffness: 100 }}
+      transition={{ duration: 0.4, delay: index * 0.05, type: 'spring', stiffness: 120 }}
       whileHover={{ 
         scale: 1.03, 
         y: -10, 
