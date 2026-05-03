@@ -29,7 +29,8 @@ npm run dev
 ```
 
 ## 📖 Documentation
-For a deep dive into the project's purpose, technical architecture, and presentation materials, please see the [Full Documentation](./DOCUMENTATION.md).
+- [Full Project Documentation](./DOCUMENTATION.md)
+- [Git & GitHub Commands Reference](./GIT_COMMANDS.md)
 
 ---
 © 2026 Mech Companion. Industrial-Grade Education.
